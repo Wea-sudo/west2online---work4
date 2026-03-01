@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>对接实验</title>
+</head>
+<body>
+<h3>待办清单 (前后端对接版)</h3>
+<input type="text" id="todoInput" placeholder="输入新任务">
+<button onclick="addTask()">发送给后端</button>
+
+<ul id="listContainer"></ul>
+
+<script>
+    // 1. 从后端获取数据并渲染
+    async function refreshList() {
+        const response = await fetch('/api/todos'); // 发起 GET 请求
+        const data = await response.json();        // 解析返回的 JSON
+
+        const html = data.map(item => `<li>${item.content} [${item.status}]</li>`).join('');
+        document.getElementById('listContainer').innerHTML = html;
+    }
+
+    // 2. 将数据发送给后端
+    async function addTask() {
+        const input = document.getElementById('todoInput');
+        const content = input.value;
+
+        // 发起 POST 请求
+        await fetch('/api/todos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: content }) // 把对象转成 JSON 字符串
+        });
+
+        input.value = ''; // 清空输入框
+        refreshList();    // 重新拉取最新列表
+    }
+
+    // 页面一打开就加载数据
+    refreshList();
+</script>
+</body>
+</html>
